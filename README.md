@@ -50,6 +50,10 @@ This application is designed to provide users with up-to-date information on the
 - **Error State**: Show appropriate error messages if the API call fails.
 - **Empty State**: Handle cases where no data is returned from the API.
 
+### API Error
+- **API limit reach error**: Use a different network for a smooth experience.
+- (Alpha Vantage free API gives 25 API calls/day for one IP.)
+
 ### Some Android View
 <div>
 <img src="https://github.com/kushaljgec2025/grow_stock/assets/108950724/1da131a3-0b11-45bb-a78b-97a71742d413" width="300"  alt="Screenshot">
