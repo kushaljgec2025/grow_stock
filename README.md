@@ -1,4 +1,6 @@
-# Stocks/ETFs Broking Platform
+# GROW STOCK (Stocks/ETFs Broking Platform) 
+![icon](https://github.com/kushaljgec2025/grow_stock/assets/108950724/0b360195-225d-4cab-9c41-9592ba463b5a)
+
 
 ## Overview
 
