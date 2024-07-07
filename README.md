@@ -1,7 +1,8 @@
 # GROW STOCK (Stocks/ETFs Broking Platform) 
 ![icon](https://github.com/kushaljgec2025/grow_stock/assets/108950724/0b360195-225d-4cab-9c41-9592ba463b5a)
 
-
+## APK 
+<a href="https://drive.google.com/file/d/1_rLn_5g7yr0E46-aEH-M1RJ9ftsn85tZ/view?usp=sharing">APK LINK</a>
 ## Overview
 
 This application is designed to provide users with up-to-date information on the top gainers and losers in the stock market. Users can explore these sections and view detailed information and price trends for individual stocks/ETFs.
