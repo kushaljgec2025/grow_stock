@@ -35,22 +35,22 @@ const SearchComp = ({ findid }) => {
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      console.log(debouncedCompanyName, "name");
       if (debouncedCompanyName?.length === 0) {
         setTickerSuggestion([]);
         setLoading(false);
         return;
       }
 
-      setLoading(true); // Set loading to true before fetching
-      // const tickerSug = await api.Ticker_suggestion(debouncedCompanyName);
-      // const symbolsAndNames = tickerSug["bestMatches"].map((item) => ({
-      //   symbol: item["1. symbol"],
-      //   name: item["2. name"],
-      // }));
-      const tickerSug = await api.Demo(debouncedCompanyName);
-
-      setTickerSuggestion(tickerSug["suggestions"]);
+      setLoading(true);
+      // Set loading to true before fetching
+      const tickerSug = await api.Ticker_suggestion(debouncedCompanyName);
+      const symbolsAndNames = tickerSug["bestMatches"]?.map((item) => ({
+        symbol: item["1. symbol"],
+        name: item["2. name"],
+      }));
+      // const tickerSug = await api.Demo(debouncedCompanyName);
+      // console.log(symbolsAndNames);
+      setTickerSuggestion(symbolsAndNames);
       setLoading(false); // Set loading to false after fetching
     };
 
@@ -119,10 +119,10 @@ const SearchComp = ({ findid }) => {
             {tickerSuggestion.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => handleSuggestionClick(item.value)}
+                onPress={() => handleSuggestionClick(item.symbol)}
               >
                 <ThemedText className="text-sm border-b border-gray-600 py-1">
-                  {item.value}
+                  {item.symbol}
                 </ThemedText>
               </TouchableOpacity>
             ))}

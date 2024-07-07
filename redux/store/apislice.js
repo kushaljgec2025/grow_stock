@@ -10,7 +10,7 @@ const companyReducers = createSlice({
         GetTopGainersLosers: (state, action) => {
             state.status = true;
             state.company = action.payload;
-            // console.log(action.payload);
+
         },
 
         GetCompanyData: (state, action) => {

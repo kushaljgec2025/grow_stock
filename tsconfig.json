@@ -19,6 +19,7 @@
     "app/(tabs)/index.jsx",
     "app/company_overview/[id].jsx",
     "app/company_overview/wel.jsx",
-    "app/company_overview/[ticker].jsx"
+    "app/company_overview/[ticker].jsx",
+    "components/Stock_Graph.jsx"
   ]
 }

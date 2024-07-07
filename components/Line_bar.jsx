@@ -13,7 +13,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 const Line_bar = ({ low, high, current_price }) => {
   const percentage = ((current_price - low) / (high - low)) * 100;
-  // console.log(low, high, current_price, percentage);
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -35,15 +35,18 @@ const Line_bar = ({ low, high, current_price }) => {
           <View></View>
         </View>
       </LinearGradient>
-      <View className="">
-        <ThemedText className="text-xs text-center mb-2">Current</ThemedText>
-        <ThemedText
-          className="text-xs text-center text-orange-400 font-bold py-1 px-2  m-auto rounded-full"
-          style={{ backgroundColor: "rgba(236, 134, 7, 0.2)" }}
-        >
-          {current_price}
-        </ThemedText>
-      </View>
+
+      {current_price > 0 && (
+        <View className="">
+          <ThemedText className="text-xs text-center mb-2">Current</ThemedText>
+          <ThemedText
+            className="text-xs text-center text-orange-400 font-bold py-1 px-2  m-auto rounded-full"
+            style={{ backgroundColor: "rgba(236, 134, 7, 0.2)" }}
+          >
+            ${current_price}
+          </ThemedText>
+        </View>
+      )}
     </View>
   );
 };

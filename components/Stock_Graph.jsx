@@ -26,11 +26,6 @@ const Stock_Graph = ({ ticker }) => {
   const isDark = useColorScheme() === "dark";
 
   useEffect(() => {
-    if (!ticker) {
-      console.log("Ticker is undefined");
-      return;
-    }
-
     const fetchStock = async () => {
       try {
         const data = await api.Stock_prices(ticker);
@@ -52,7 +47,8 @@ const Stock_Graph = ({ ticker }) => {
         date: new Date(date),
         value: parseFloat(timeSeries[date]["4. close"]),
       }));
-      setGraphDataPoints(points);
+      const reversedPoints = points.reverse();
+      setGraphDataPoints(reversedPoints);
     }
   }, [stockData]);
 
@@ -83,6 +79,23 @@ const Stock_Graph = ({ ticker }) => {
     );
   }
 
+  if (
+    ticker === undefined ||
+    ticker === null ||
+    ticker === "" ||
+    stockData === undefined ||
+    stockData === null ||
+    stockData === ""
+  ) {
+    return (
+      <ThemedView style={styles.loadingContainer}>
+        <ThemedText className="text-center">
+          No data available for this stock
+        </ThemedText>
+      </ThemedView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View className="my-4">
@@ -108,7 +121,7 @@ const Stock_Graph = ({ ticker }) => {
             color={graphColor}
             width={screenWidth - 20}
             height={220}
-            style={{ flex: 1, alignSelf: "center", bottom: 6 }}
+            style={{ flex: 1, alignSelf: "center", bottom: 6, marginTop: 20 }}
             gradientFillColors={[graphColor, isDark ? "#151718" : "#fff"]}
             enablePanGesture={true}
             onPointSelected={(point) => updatePriceTitle(point)}

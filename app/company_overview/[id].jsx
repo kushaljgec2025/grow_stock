@@ -26,9 +26,11 @@ import Line_bar from "../../components/Line_bar";
 import Stock_Graph from "../../components/Stock_Graph";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Search_comp from "../../components/Search_comp";
+import Data_notfound from "../../components/Data_notfound";
 
 export default function CompanyOverview() {
   const [companyOverview, setCompanyOverview] = useState(null);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true); // New loading state
   const { id, price, change_percentage } = useLocalSearchParams();
   const colorScheme = useColorScheme();
@@ -36,14 +38,20 @@ export default function CompanyOverview() {
 
   useEffect(() => {
     const fetchCompanyOverview = async () => {
-      const data = await api.company_overview(newid);
-      setCompanyOverview(data);
-
-      setLoading(false); // Set loading to false after data is fetched
+      try {
+        const data = await api.company_overview(newid);
+        setCompanyOverview(data);
+        setError(data["Information"]);
+        setLoading(false);
+      } catch {
+        setLoading(false);
+      }
+      // Set loading to false after data is fetched
     };
 
     fetchCompanyOverview();
   }, [newid]);
+  console.log(error);
 
   const formatMarketCap = (marketCap) => {
     if (marketCap >= 1e12) {
@@ -71,16 +79,22 @@ export default function CompanyOverview() {
       </SafeAreaView>
     );
   }
-  // console.log(companyOverview);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <View className="p-2 px-4">
           <ScrollView>
-            {companyOverview && (
+            <Search_comp findid={getId} />
+            {(companyOverview == null ||
+              companyOverview.Symbol == undefined) && (
+              <Data_notfound
+                title={"Unavalable Stock Data"}
+                description={error}
+              />
+            )}
+            {companyOverview && companyOverview.Symbol != undefined && (
               <View>
-                <Search_comp findid={getId} />
                 <ThemedText type="subtitle">{companyOverview.Name}</ThemedText>
                 <View className="flex-row my-2 justify-between items-center">
                   <View>
@@ -99,34 +113,41 @@ export default function CompanyOverview() {
                       {companyOverview.AssetType}
                     </ThemedText>
                   </View>
-                  <View>
-                    <ThemedText
-                      className="p-1 px-4 rounded-full"
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Price : $ {price}
-                    </ThemedText>
-                    <Text
-                      className={`${
-                        change_percentage?.startsWith("-")
-                          ? "text-red-500 "
-                          : "text-green-500 "
-                      } font-semibold rounded-full px-2 py-1 text-center`}
-                      style={{
-                        borderRadius: 10,
-                        opacity: 0.8,
-                        backgroundColor: change_percentage?.startsWith("-")
-                          ? "rgba(255, 0, 0, 0.2)"
-                          : "rgba(0, 255, 0, 0.2)",
-                      }}
-                    >
-                      {change_percentage}
-                      {change_percentage?.startsWith("-") ? "↓" : "↑"}
-                    </Text>
-                  </View>
+                  {price !== null && price !== undefined && newid == id && (
+                    <View>
+                      <ThemedText
+                        className="p-1 px-4 rounded-full"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Price : $ {price}
+                      </ThemedText>
+                      {change_percentage !== null &&
+                        change_percentage !== undefined && (
+                          <Text
+                            className={`${
+                              change_percentage?.startsWith("-")
+                                ? "text-red-500 "
+                                : "text-green-500 "
+                            } font-semibold rounded-full px-2 py-1 text-center`}
+                            style={{
+                              borderRadius: 10,
+                              opacity: 0.8,
+                              backgroundColor: change_percentage?.startsWith(
+                                "-"
+                              )
+                                ? "rgba(255, 0, 0, 0.2)"
+                                : "rgba(0, 255, 0, 0.2)",
+                            }}
+                          >
+                            {change_percentage}
+                            {change_percentage?.startsWith("-") ? "↓" : "↑"}
+                          </Text>
+                        )}
+                    </View>
+                  )}
                 </View>
                 <View>
                   <Stock_Graph ticker={companyOverview.Symbol} />
@@ -183,7 +204,7 @@ export default function CompanyOverview() {
                   <Line_bar
                     low={companyOverview["52WeekLow"]}
                     high={companyOverview["52WeekHigh"]}
-                    current_price={price}
+                    current_price={newid == id ? price : 0}
                   />
                 </View>
                 <ScrollView
@@ -198,7 +219,7 @@ export default function CompanyOverview() {
                   <ThemedView className="w-[45%] rounded-xl">
                     <ThemedText style={styles.headtext}>Market Cap</ThemedText>
                     <ThemedText style={styles.subtext}>
-                      {formatMarketCap(companyOverview.MarketCapitalization)}
+                      $ {formatMarketCap(companyOverview.MarketCapitalization)}
                     </ThemedText>
                   </ThemedView>
                   <ThemedView className="w-[45%] rounded-xl">
