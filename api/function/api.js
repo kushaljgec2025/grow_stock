@@ -1,8 +1,8 @@
 // const API_KEY = "211JTCUNP3V0HH1Z"
 // const API_KEY = "0466PMW38Q5YF9JV"
 // const API_KEY = "MVHYBKEMSHRVVQP4"
-const API_KEY = "YJ7PG99K3K4EBOPR"
-// const API_KEY = "demo"
+// const API_KEY = "YJ7PG99K3K4EBOPR"
+const API_KEY = "demo"
 
 export class API {
 
@@ -18,8 +18,8 @@ export class API {
 
     async company_overview(ticker) {
         try {
-            const response = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${API_KEY}`);
-            // const response = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=IBM&apikey=${API_KEY}`);
+            // const response = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${API_KEY}`);
+            const response = await fetch(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=IBM&apikey=${API_KEY}`);
             const data = await response.json();
             return data;
         } catch (error) {
@@ -28,8 +28,8 @@ export class API {
     }
     async Stock_prices(ticker) {
         try {
-            const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${API_KEY}`);
-            // const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=${API_KEY}`);
+            // const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${API_KEY}`);
+            const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=${API_KEY}`);
             const data = await response.json();
             return data;
         } catch (error) {
@@ -38,8 +38,8 @@ export class API {
     }
     async Ticker_suggestion(ticker) {
         try {
-            const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${ticker}&apikey=${API_KEY}`);
-            // const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=SAIC&apikey=${API_KEY}`);
+            // const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${ticker}&apikey=${API_KEY}`);
+            const response = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=SAIC&apikey=${API_KEY}`);
             const data = response.json();
             // console.log("api", data);
             return data;

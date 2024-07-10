@@ -4,24 +4,21 @@ import {
   Dimensions,
   useColorScheme,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { LineGraph } from "react-native-graph";
 import Random_colors from "./Random_colors";
-
 import api from "@/api/function/api";
-import {
-  GestureHandlerRootView,
-  ScrollView,
-} from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-const Stock_Graph = ({ ticker }) => {
+const StockGraph = ({ ticker }) => {
   const [stockData, setStockData] = useState({});
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [graphDataPoints, setGraphDataPoints] = useState([]);
   const [graphColor, setColor] = useState(Random_colors());
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
   const screenWidth = Dimensions.get("window").width;
   const isDark = useColorScheme() === "dark";
 
@@ -30,10 +27,10 @@ const Stock_Graph = ({ ticker }) => {
       try {
         const data = await api.Stock_prices(ticker);
         setStockData(data);
-        setLoading(false); // Set loading to false after data is fetched
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching stock data:", error);
-        setLoading(false); // Set loading to false even if there's an error
+        setLoading(false);
       }
     };
 
@@ -43,12 +40,12 @@ const Stock_Graph = ({ ticker }) => {
   useEffect(() => {
     const timeSeries = stockData["Time Series (Daily)"];
     if (timeSeries) {
-      const points = Object.keys(timeSeries).map((date) => ({
+      const points = Object.keys(timeSeries).map((date, id) => ({
+        id: id,
         date: new Date(date),
         value: parseFloat(timeSeries[date]["4. close"]),
       }));
-      const reversedPoints = points.reverse();
-      setGraphDataPoints(reversedPoints);
+      setGraphDataPoints(points.reverse());
     }
   }, [stockData]);
 
@@ -56,40 +53,85 @@ const Stock_Graph = ({ ticker }) => {
     setSelectedPoint(point);
   };
 
-  const styles = {
-    tab_tag: {
-      borderRadius: 50,
-      padding: 8,
-      backgroundColor: isDark ? "#030712" : "#e2e8f0",
-      width: 40,
-      height: 40,
+  const styles = StyleSheet.create({
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    loadingText: {
       textAlign: "center",
-      color: isDark ? "#e2e8f0" : "#030712",
+    },
+    graphContainer: {
+      marginVertical: 16,
+    },
+    graphCard: {
+      borderRadius: 16,
+      paddingVertical: 10,
+      paddingTop: 64,
+      paddingHorizontal: 24,
+    },
+    priceInfo: {
+      position: "absolute",
+      top: 16,
+      left: 16,
+    },
+    currentPriceText: {
+      fontWeight: "bold",
+      color: "#4CAF50",
+    },
+    dateText: {
+      fontSize: 12,
+      color: "#757575",
+    },
+    lineGraph: {
+      alignSelf: "center",
+    },
+    graphHint: {
+      fontSize: 12,
+      textAlign: "left",
+      color: "#757575",
+      opacity: 0.5,
+    },
+    tabContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginVertical: 8,
+      padding: 8,
+      borderRadius: 36,
+    },
+    tabTag: {
+      width: 44,
+      height: 44,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 100,
+      backgroundColor: isDark ? "black" : "#cbd5e1",
+
+      color: isDark ? "white" : "gray",
+    },
+    tabTagText: {
       fontSize: 12,
       fontWeight: "bold",
     },
-  };
+  });
 
   if (loading) {
     return (
       <ThemedView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={isDark ? "white" : "black"} />
-        <ThemedText className="text-center">Loading Price Graph ...</ThemedText>
+        <ThemedText style={styles.loadingText}>
+          Loading Price Graph ...
+        </ThemedText>
       </ThemedView>
     );
   }
 
-  if (
-    ticker === undefined ||
-    ticker === null ||
-    ticker === "" ||
-    stockData === undefined ||
-    stockData === null ||
-    stockData === ""
-  ) {
+  if (!ticker || !stockData || !graphDataPoints?.length) {
     return (
       <ThemedView style={styles.loadingContainer}>
-        <ThemedText className="text-center">
+        <ThemedText style={styles.loadingText}>
           No data available for this stock
         </ThemedText>
       </ThemedView>
@@ -98,62 +140,52 @@ const Stock_Graph = ({ ticker }) => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="my-4">
-        <ThemedView className="rounded-xl py-10">
-          <View className="absolute top-4 left-4">
-            <ThemedText className="text-left font-bold text-green-500">
-              {selectedPoint
-                ? `$${selectedPoint.value}`
-                : `$ ${graphDataPoints[graphDataPoints.length - 1]?.["value"]}`}
-            </ThemedText>
-            <ThemedText className="text-left font-light text-xs">
-              {selectedPoint
-                ? new Date(selectedPoint.date).toDateString()
-                : new Date(
-                    graphDataPoints[graphDataPoints.length - 1]?.["date"]
-                  ).toDateString()}
+      <ThemedView style={styles.graphCard}>
+        <View style={styles.priceInfo}>
+          <ThemedText style={styles.currentPriceText}>
+            {selectedPoint
+              ? `$${selectedPoint.value}`
+              : `$${graphDataPoints[graphDataPoints?.length - 1]?.value}`}
+          </ThemedText>
+          <ThemedText style={styles.dateText}>
+            {selectedPoint
+              ? new Date(selectedPoint.date).toDateString()
+              : new Date(
+                  graphDataPoints[graphDataPoints?.length - 1]?.date
+                ).toDateString()}
+          </ThemedText>
+        </View>
+
+        <LineGraph
+          points={graphDataPoints}
+          animated={true}
+          color={graphColor}
+          width={screenWidth - 20}
+          height={220}
+          style={styles.lineGraph}
+          gradientFillColors={[graphColor, isDark ? "#151718" : "#fff"]}
+          enablePanGesture={true}
+          onPointSelected={updatePriceTitle}
+          onGestureEnd={() => setSelectedPoint(null)}
+          enableIndicator
+          indicatorPulsating
+          enableFadeInMask
+        />
+      </ThemedView>
+      <ThemedText style={styles.graphHint}>
+        *Press and hold the graph, then drag it back and forth to check prices.
+      </ThemedText>
+      <ThemedView style={styles.tabContainer}>
+        {["1D", "1W", "1M", "3M", "1Y"].map((label, id) => (
+          <View style={styles.tabTag}>
+            <ThemedText key={id} style={styles.tabTagText}>
+              {label}
             </ThemedText>
           </View>
-
-          <LineGraph
-            points={graphDataPoints}
-            animated={true}
-            color={graphColor}
-            width={screenWidth - 20}
-            height={220}
-            style={{ flex: 1, alignSelf: "center", bottom: 6, marginTop: 20 }}
-            gradientFillColors={[graphColor, isDark ? "#151718" : "#fff"]}
-            enablePanGesture={true}
-            onPointSelected={(point) => updatePriceTitle(point)}
-            onGestureEnd={() => setSelectedPoint(null)}
-            enableIndicator
-            indicatorPulsating
-            enableFadeInMask
-          />
-        </ThemedView>
-        <ThemedText className="text-xs text-left opacity-50">
-          *Press and hold the graph, then drag it back and forth to check
-          prices.
-        </ThemedText>
-        <ThemedView className="flex-row justify-between my-4 mx-auto space-x-6 px-4 py-2 rounded-full">
-          <ThemedText style={styles.tab_tag}>1D</ThemedText>
-          <ThemedText style={styles.tab_tag}>1W</ThemedText>
-          <ThemedText style={styles.tab_tag}>1M</ThemedText>
-          <ThemedText style={styles.tab_tag}>3M</ThemedText>
-          <ThemedText style={styles.tab_tag}>1Y</ThemedText>
-        </ThemedView>
-      </View>
+        ))}
+      </ThemedView>
     </GestureHandlerRootView>
   );
 };
 
-const styles = {
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-  },
-};
-
-export default Stock_Graph;
+export default StockGraph;

@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { GetTopGainersLosers, GetTopGainers } from "@/redux/store/apislice";
 import { Link, router } from "expo-router";
 import Data_notfound from "@/components/Data_notfound";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [dataNotFound, setDataNotFound] = useState(false);
   const isDark = useColorScheme() === "dark";
+
   useEffect(() => {
     const fetchTopGainerLoser = async () => {
       try {
@@ -75,35 +77,27 @@ export default function HomeScreen() {
       <StatusBar />
       {topGainerLoser && (
         <ScrollView>
-          <ThemedView className="logo p-2 px-4 flex-row justify-start items-center space-x-4">
+          <ThemedView style={styles.logoContainer}>
             <Image
               source={require("@/assets/images/icon.png")}
-              className="w-12 h-12 rounded-full"
+              style={styles.logo}
               alt="logo"
             />
-            <View className="flex-col justify-center p-1">
-              <ThemedText type="subtitle" className="text-green-500">
+            <View style={styles.logoTextContainer}>
+              <ThemedText type="subtitle" style={styles.logoTitle}>
                 GROW STOCK
               </ThemedText>
-              <Text className="text-gray-400">Invest in your future</Text>
+              <Text style={styles.logoSubtitle}>Invest in your future</Text>
             </View>
           </ThemedView>
           <ScrollView
-            contentContainerStyle={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              justifyContent: "space-around",
-              alignItems: "center",
-            }}
-            className="p-2 flex-1 space-y-4 w-full mb-20"
+            contentContainerStyle={styles.scrollViewContent}
+            style={styles.scrollView}
           >
             {topGainerLoser["top_gainers"]?.map((item, index) => (
-              <ThemedView
-                key={index}
-                className="flex justify-between items-center p-2 space-y-4 w-[45%] rounded-lg shadow-md"
-              >
+              <ThemedView key={index} style={styles.gainerLoserItem}>
                 <Pressable
-                  className="flex justify-between items-center p-2 space-y-4"
+                  style={styles.gainerLoserPressable}
                   onPress={() => {
                     router.push({
                       name: "CompanyOverview",
@@ -116,22 +110,16 @@ export default function HomeScreen() {
                   }}
                 >
                   <ThemedText>{item.ticker}</ThemedText>
-                  <ThemedText className="text-gray-400 font-bold">
+                  <ThemedText style={styles.gainerLoserPrice}>
                     $ {item.price}
                   </ThemedText>
                   <Text
-                    className={`${
+                    style={[
+                      styles.gainerLoserChange,
                       item.change_percentage?.startsWith("-")
-                        ? "text-red-500 "
-                        : "text-green-500 "
-                    } font-semibold rounded-full px-2 py-1`}
-                    style={{
-                      borderRadius: 10,
-                      opacity: 0.8,
-                      backgroundColor: item.change_percentage?.startsWith("-")
-                        ? "rgba(255, 0, 0, 0.2)"
-                        : "rgba(0, 255, 0, 0.2)",
-                    }}
+                        ? styles.negativeChange
+                        : styles.positiveChange,
+                    ]}
                   >
                     {item.change_percentage}
                   </Text>
@@ -150,5 +138,82 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  logoContainer: {
+    padding: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    justifyContent: "start",
+    alignItems: "center",
+    spaceBetween: 16,
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  logoTextContainer: {
+    justifyContent: "center",
+    padding: 4,
+    marginHorizontal: 8,
+  },
+  logoTitle: {
+    color: "green",
+  },
+  logoSubtitle: {
+    color: "gray",
+  },
+  scrollViewContent: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    alignItems: "center",
+    gap: 16,
+  },
+  scrollView: {
+    padding: 8,
+    flex: 1,
+    spaceBetween: 16,
+    width: "100%",
+    marginBottom: 80,
+  },
+  gainerLoserItem: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+    spaceBetween: 16,
+    width: "45%",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  gainerLoserPressable: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 8,
+    spaceBetween: 16,
+    gap: 10,
+  },
+  gainerLoserPrice: {
+    color: "gray",
+    fontWeight: "bold",
+  },
+  gainerLoserChange: {
+    fontWeight: "bold",
+    borderRadius: 10,
+    opacity: 0.8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  negativeChange: {
+    color: "red",
+    backgroundColor: "rgba(255, 0, 0, 0.2)",
+  },
+  positiveChange: {
+    color: "green",
+    backgroundColor: "rgba(0, 255, 0, 0.2)",
   },
 });

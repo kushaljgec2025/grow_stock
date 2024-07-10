@@ -1,26 +1,22 @@
-import { View, Text } from "react-native";
-
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 
-import React from "react";
-import { ThemeProvider } from "styled-components";
-
-const Data_notfound = ({
+const DataNotfound = ({
   title = "OOPS !",
-  description = "page not found",
+  description = "Page not found",
   textcolor = "red",
 }) => {
   return (
-    <View className="w-full h-screen flex justify-center items-center">
-      <ThemedView className="p-10 flex justify-center items-center rounded-lg">
-        <ThemedText type="title" className="text-justify">
+    <View style={styles.container}>
+      <ThemedView style={styles.themedView}>
+        <ThemedText type="title" style={styles.title}>
           {title}
         </ThemedText>
         <ThemedText
           type="subtitle"
-          className="text-justify"
-          style={{ color: textcolor }}
+          style={[styles.subtitle, { color: textcolor }]}
         >
           {description}
         </ThemedText>
@@ -29,4 +25,26 @@ const Data_notfound = ({
   );
 };
 
-export default Data_notfound;
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  themedView: {
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    textAlign: "center",
+  },
+});
+
+export default DataNotfound;

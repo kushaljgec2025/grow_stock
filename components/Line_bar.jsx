@@ -1,17 +1,11 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  useColorScheme,
-} from "react-native";
 import React from "react";
+import { View, StyleSheet, Dimensions, useColorScheme } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-const Line_bar = ({ low, high, current_price }) => {
+const LineBar = ({ low, high, current_price }) => {
+  const colorScheme = useColorScheme();
   const percentage = ((current_price - low) / (high - low)) * 100;
 
   return (
@@ -21,52 +15,65 @@ const Line_bar = ({ low, high, current_price }) => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.line}
-        className="mb-6"
       >
         <View
-          className="absolute inset-0  flex justify-between items-center "
-          style={{ left: `${percentage - 2.5}%`, top: 10 }}
+          style={[
+            styles.indicatorContainer,
+            { left: `${percentage - 2.5}%`, top: 10 },
+          ]}
         >
           <AntDesign
             name="caretup"
             size={16}
-            color={useColorScheme() === "dark" ? "white" : "black"}
+            color={colorScheme === "dark" ? "white" : "black"}
           />
-          <View></View>
         </View>
       </LinearGradient>
-
       {current_price > 0 && (
-        <View className="">
-          <ThemedText className="text-xs text-center mb-2">Current</ThemedText>
-          <ThemedText
-            className="text-xs text-center text-orange-400 font-bold py-1 px-2  m-auto rounded-full"
-            style={{ backgroundColor: "rgba(236, 134, 7, 0.2)" }}
-          >
-            ${current_price}
-          </ThemedText>
+        <View style={styles.currentPriceContainer}>
+          <ThemedText style={styles.currentPriceLabel}>Current</ThemedText>
+          <ThemedText style={styles.currentPrice}>${current_price}</ThemedText>
         </View>
       )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     marginVertical: 20,
+    alignItems: "center", // Aligns the elements in the center
   },
   line: {
     width: Dimensions.get("window").width - 100,
     height: 10,
-    display: "flex",
-    flexDirection: "row",
-
     borderRadius: 10,
   },
-
-  text: {
+  indicatorContainer: {
+    position: "absolute",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  currentPriceContainer: {
+    marginTop: 10,
+    alignItems: "center",
+  },
+  currentPriceLabel: {
+    fontSize: 12,
     textAlign: "center",
-
+    marginBottom: 2,
+  },
+  currentPrice: {
+    fontSize: 12,
+    textAlign: "center",
+    color: "#FFA500", // orange color
     fontWeight: "bold",
+    paddingVertical: 1,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    backgroundColor: "rgba(236, 134, 7, 0.2)",
   },
 });
-export default Line_bar;
+
+export default LineBar;

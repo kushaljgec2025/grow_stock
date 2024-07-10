@@ -1,21 +1,23 @@
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
   ActivityIndicator,
   TouchableOpacity,
+  StyleSheet,
+  Keyboard,
 } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useState, useEffect } from "react";
 import api from "@/api/function/api";
 import { useNavigation } from "@react-navigation/native";
-import { router } from "expo-router";
 
 const SearchComp = ({ findid }) => {
-  const [is_open, setIs_open] = useState(false);
-  const [is_text, setIs_text] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isText, setIsText] = useState(false);
+  const [isFocus, setfocus] = useState(false);
   const [tickerSuggestion, setTickerSuggestion] = useState([]);
   const [companyName, setCompanyName] = useState("");
   const [debouncedCompanyName, setDebouncedCompanyName] = useState(companyName);
@@ -24,13 +26,15 @@ const SearchComp = ({ findid }) => {
   const navigation = useNavigation(); // Initialize the navigation hook
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedCompanyName(companyName);
-    }, 1000);
+    if (isFocus == true) {
+      const handler = setTimeout(() => {
+        setDebouncedCompanyName(companyName);
+      }, 1000);
 
-    return () => {
-      clearTimeout(handler);
-    };
+      return () => {
+        clearTimeout(handler);
+      };
+    }
   }, [companyName]);
 
   useEffect(() => {
@@ -42,38 +46,43 @@ const SearchComp = ({ findid }) => {
       }
 
       setLoading(true);
-      // Set loading to true before fetching
-      const tickerSug = await api.Ticker_suggestion(debouncedCompanyName);
-      const symbolsAndNames = tickerSug["bestMatches"]?.map((item) => ({
-        symbol: item["1. symbol"],
-        name: item["2. name"],
-      }));
-      // const tickerSug = await api.Demo(debouncedCompanyName);
-      // console.log(symbolsAndNames);
-      setTickerSuggestion(symbolsAndNames);
-      setLoading(false); // Set loading to false after fetching
+      try {
+        const tickerSug = await api.Ticker_suggestion(debouncedCompanyName);
+        const symbolsAndNames = tickerSug["bestMatches"]?.map((item) => ({
+          symbol: item["1. symbol"],
+          name: item["2. name"],
+        }));
+        setTickerSuggestion(symbolsAndNames);
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchSuggestions();
   }, [debouncedCompanyName]);
 
   const handleChange = (text) => {
+    setfocus(true);
     setCompanyName(text);
   };
 
   const handleSuggestionClick = (symbol) => {
-    setCompanyName(symbol);
+    setfocus(false);
+    Keyboard.dismiss();
     setTickerSuggestion([]);
+    setCompanyName(symbol);
+    handleSearchCompany();
   };
-  const handelSearchCompany = () => {
-    // router.push({
-    //   pathname: `/company_overview/${companyName}`,
-    // });
+
+  const handleSearchCompany = (companyName) => {
     findid(companyName);
   };
+
   return (
     <View>
-      <ThemedView className="rounded-full flex-row items-center px-6 my-2">
+      <ThemedView style={styles.searchContainer}>
         <AntDesign
           name="search1"
           size={24}
@@ -85,52 +94,78 @@ const SearchComp = ({ findid }) => {
           keyboardType="search"
           returnKeyType="search"
           onChangeText={handleChange}
-          onSubmitEditing={() => handelSearchCompany(companyName)}
+          onSubmitEditing={() => handleSearchCompany(companyName)}
           value={companyName}
-          style={{
-            backgroundColor: "transparent",
-            padding: 10,
-            borderRadius: 10,
-            color: isDark ? "white" : "black",
-            flex: 1,
-          }}
+          style={[styles.textInput, { color: isDark ? "white" : "black" }]}
         />
         {loading && (
           <ActivityIndicator
             size="small"
             color={isDark ? "white" : "black"}
-            style={{ marginLeft: 10 }}
+            style={styles.activityIndicator}
           />
         )}
-        <AntDesign
-          name="closecircleo"
-          size={24}
-          color={isDark ? "white" : "black"}
-          style={{ display: companyName?.length > 0 ? "block" : "none" }}
-          onPress={() => {
-            setCompanyName("");
-            setTickerSuggestion([]);
-          }}
-        />
+        {companyName?.length > 0 && (
+          <AntDesign
+            name="closecircleo"
+            size={24}
+            color={isDark ? "white" : "black"}
+            onPress={() => {
+              setCompanyName("");
+              setTickerSuggestion([]);
+            }}
+          />
+        )}
       </ThemedView>
       {tickerSuggestion?.length > 0 && (
-        <ThemedView className="absolute w-full top-16 z-10 rounded-xl p-4">
-          <View className="flex space-y-1">
-            {tickerSuggestion.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleSuggestionClick(item.symbol)}
-              >
-                <ThemedText className="text-sm border-b border-gray-600 py-1">
-                  {item.symbol}
-                </ThemedText>
-              </TouchableOpacity>
-            ))}
-          </View>
+        <ThemedView style={styles.suggestionContainer}>
+          {tickerSuggestion?.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleSuggestionClick(item.symbol)}
+            >
+              <ThemedText style={styles.suggestionItem}>
+                {item.symbol}
+              </ThemedText>
+            </TouchableOpacity>
+          ))}
         </ThemedView>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  searchContainer: {
+    borderRadius: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    marginVertical: 8,
+  },
+  textInput: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 10,
+  },
+  activityIndicator: {
+    marginLeft: 10,
+  },
+  suggestionContainer: {
+    position: "absolute",
+    width: "100%",
+    top: 60,
+    zIndex: 10,
+    borderRadius: 10,
+    padding: 16,
+  },
+
+  suggestionItem: {
+    fontSize: 14,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+  },
+});
 
 export default SearchComp;

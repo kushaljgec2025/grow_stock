@@ -46,7 +46,6 @@ export default function CompanyOverview() {
       } catch {
         setLoading(false);
       }
-      // Set loading to false after data is fetched
     };
 
     fetchCompanyOverview();
@@ -83,64 +82,42 @@ export default function CompanyOverview() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <View className="p-2 px-4">
+        <View style={styles.container}>
           <ScrollView>
             <Search_comp findid={getId} />
             {(companyOverview == null ||
               companyOverview.Symbol == undefined) && (
               <Data_notfound
-                title={"Unavalable Stock Data"}
+                title={"Unavailable Stock Data"}
                 description={error}
               />
             )}
-            {companyOverview && companyOverview.Symbol != undefined && (
+            {companyOverview && companyOverview.Symbol !== undefined && (
               <View>
                 <ThemedText type="subtitle">{companyOverview.Name}</ThemedText>
-                <View className="flex-row my-2 justify-between items-center">
+                <View style={styles.companyInfo}>
                   <View>
-                    <Text
-                      className="p-1 px-4 rounded-full m-auto"
-                      style={{
-                        color: "#06b6d4",
-                        fontSize: 16,
-                        fontWeight: "bold",
-                        backgroundColor: "rgba(6, 182, 212, 0.2)",
-                      }}
-                    >
+                    <Text style={styles.symbolText}>
                       {companyOverview.Symbol}
                     </Text>
-                    <ThemedText className="text-[10px]">
+                    <ThemedText style={styles.assetTypeText}>
                       {companyOverview.AssetType}
                     </ThemedText>
                   </View>
                   {price !== null && price !== undefined && newid == id && (
                     <View>
-                      <ThemedText
-                        className="p-1 px-4 rounded-full"
-                        style={{
-                          fontSize: 16,
-                          fontWeight: "bold",
-                        }}
-                      >
+                      <ThemedText style={styles.priceText}>
                         Price : $ {price}
                       </ThemedText>
                       {change_percentage !== null &&
                         change_percentage !== undefined && (
                           <Text
-                            className={`${
+                            style={[
+                              styles.changePercentage,
                               change_percentage?.startsWith("-")
-                                ? "text-red-500 "
-                                : "text-green-500 "
-                            } font-semibold rounded-full px-2 py-1 text-center`}
-                            style={{
-                              borderRadius: 10,
-                              opacity: 0.8,
-                              backgroundColor: change_percentage?.startsWith(
-                                "-"
-                              )
-                                ? "rgba(255, 0, 0, 0.2)"
-                                : "rgba(0, 255, 0, 0.2)",
-                            }}
+                                ? styles.negativeChange
+                                : styles.positiveChange,
+                            ]}
                           >
                             {change_percentage}
                             {change_percentage?.startsWith("-") ? "↓" : "↑"}
@@ -152,89 +129,73 @@ export default function CompanyOverview() {
                 <View>
                   <Stock_Graph ticker={companyOverview.Symbol} />
                 </View>
-                <ThemedView className="my-2 rounded-xl p-2">
-                  <ThemedText className="text-md font-bold p-2">
+                <ThemedView style={styles.companyOverview}>
+                  <ThemedText style={styles.companyName}>
                     {companyOverview.Name}
                   </ThemedText>
-                  <ThemedText className="text-xs text-justify p-2">
+                  <ThemedText style={styles.description}>
                     {companyOverview.Description}
                   </ThemedText>
-                  <View className="m-2 my-4 space-y-4">
-                    <Text
-                      className="text-orange-400 text-xs py-2 px-2 rounded-full"
-                      style={styles.tag}
-                    >
-                      <Text className="font-bold"> Industry: </Text>
+                  <View style={styles.industrySectorContainer}>
+                    <ThemedText style={styles.tag}>
+                      <ThemedText style={styles.boldText}>
+                        {" "}
+                        Industry:{" "}
+                      </ThemedText>
                       {companyOverview.Industry}
-                    </Text>
-                    <Text
-                      className="text-orange-400 text-xs py-2 px-2 rounded-full"
-                      style={styles.tag}
-                    >
-                      <Text className="font-bold"> Sector: </Text>
+                    </ThemedText>
+                    <ThemedText style={styles.tag}>
+                      <ThemedText style={styles.boldText}> Sector: </ThemedText>
                       {companyOverview.Sector}
-                    </Text>
+                    </ThemedText>
                   </View>
                 </ThemedView>
-                <View className="flex items-center w-full">
-                  <View className="flex-row justify-between w-full">
-                    <View className="flex justify-center items-center">
-                      <ThemedText className="text-xs p-2">
-                        52 Week Low
-                      </ThemedText>
-                      <Text
-                        className="text-xs text-red-500 px-2 py-1 rounded-full font-bold"
-                        style={{ backgroundColor: "rgba(255,0,0,0.2)" }}
-                      >
-                        {companyOverview["52WeekLow"]}
-                      </Text>
-                    </View>
-                    <View className="flex justify-center items-center">
-                      <ThemedText className="text-xs p-2">
-                        52 Week High
-                      </ThemedText>
-                      <Text
-                        className="text-xs text-green-500 px-2 py-1 rounded-full font-bold"
-                        style={{ backgroundColor: "rgba(0,255,0,0.2)" }}
-                      >
-                        {companyOverview["52WeekHigh"]}
-                      </Text>
-                    </View>
+                <View style={styles.priceContainer}>
+                  <View style={styles.priceBox}>
+                    <ThemedText style={styles.priceTitle}>
+                      52 Week Low
+                    </ThemedText>
+                    <Text style={styles.lowPrice}>
+                      {companyOverview["52WeekLow"]}
+                    </Text>
                   </View>
-                  <Line_bar
-                    low={companyOverview["52WeekLow"]}
-                    high={companyOverview["52WeekHigh"]}
-                    current_price={newid == id ? price : 0}
-                  />
+                  <View style={styles.priceBox}>
+                    <ThemedText style={styles.priceTitle}>
+                      52 Week High
+                    </ThemedText>
+                    <Text style={styles.highPrice}>
+                      {companyOverview["52WeekHigh"]}
+                    </Text>
+                  </View>
                 </View>
+                <Line_bar
+                  low={companyOverview["52WeekLow"]}
+                  high={companyOverview["52WeekHigh"]}
+                  current_price={newid == id ? price : 0}
+                />
                 <ScrollView
-                  contentContainerStyle={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
+                  contentContainerStyle={styles.metricContainer}
                   className="p-2 gap-2 w-full m-auto"
                 >
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>Market Cap</ThemedText>
                     <ThemedText style={styles.subtext}>
                       $ {formatMarketCap(companyOverview.MarketCapitalization)}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>P/E Ratio</ThemedText>
                     <ThemedText style={styles.subtext}>
                       {formatMarketCap(companyOverview.PERatio)}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>Beta</ThemedText>
                     <ThemedText style={styles.subtext}>
                       {companyOverview.Beta}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>
                       Dividend Yield
                     </ThemedText>
@@ -242,7 +203,7 @@ export default function CompanyOverview() {
                       {companyOverview.DividendYield}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>
                       Profit Margin
                     </ThemedText>
@@ -250,7 +211,7 @@ export default function CompanyOverview() {
                       {companyOverview.ProfitMargin}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView className="w-[45%] rounded-xl">
+                  <ThemedView style={styles.metricBox}>
                     <ThemedText style={styles.headtext}>EPS</ThemedText>
                     <ThemedText style={styles.subtext}>
                       {companyOverview.EPS}
@@ -268,7 +229,125 @@ export default function CompanyOverview() {
 
 const styles = StyleSheet.create({
   container: {
+    marginHorizontal: 16,
     borderRadius: 10,
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  companyInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  symbolText: {
+    color: "#06b6d4",
+    fontSize: 16,
+    fontWeight: "bold",
+    backgroundColor: "rgba(6, 182, 212, 0.2)",
+    padding: 8,
+    borderRadius: 16,
+    textAlign: "center",
+  },
+  assetTypeText: {
+    fontSize: 10,
+  },
+  priceText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  changePercentage: {
+    fontWeight: "bold",
+    borderRadius: 10,
+    opacity: 0.8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    textAlign: "center",
+  },
+  negativeChange: {
+    color: "red",
+    backgroundColor: "rgba(255, 0, 0, 0.2)",
+  },
+  positiveChange: {
+    color: "green",
+    backgroundColor: "rgba(0, 255, 0, 0.2)",
+  },
+  companyOverview: {
+    marginVertical: 8,
+    padding: 16,
+    borderRadius: 16,
+  },
+  companyName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    paddingBottom: 8,
+  },
+  description: {
+    fontSize: 12,
+    textAlign: "justify",
+    paddingBottom: 8,
+  },
+  industrySectorContainer: {
+    marginVertical: 16,
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: "rgba(236, 134, 7, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    fontSize: 12,
+  },
+  boldText: {
+    fontWeight: "bold",
+  },
+  priceContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  priceBox: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  priceTitle: {
+    fontSize: 12,
+    paddingBottom: 8,
+  },
+  lowPrice: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "red",
+    backgroundColor: "rgba(255, 0, 0, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  highPrice: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "green",
+    backgroundColor: "rgba(0, 255, 0, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  metricContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  metricBox: {
+    width: "45%",
+    borderRadius: 16,
+    padding: 8,
+    marginVertical: 8,
   },
   headtext: {
     fontSize: 12,
@@ -280,13 +359,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     color: "#FFA500", // orange color
-  },
-  tag: {
-    backgroundColor: "rgba(236, 134, 7, 0.2)",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
