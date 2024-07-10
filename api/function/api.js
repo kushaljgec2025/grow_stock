@@ -1,9 +1,5 @@
-// const API_KEY = "211JTCUNP3V0HH1Z"
-// const API_KEY = "0466PMW38Q5YF9JV"
-// const API_KEY = "MVHYBKEMSHRVVQP4"
-// const API_KEY = "YJ7PG99K3K4EBOPR"
-const API_KEY = "demo"
 
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 export class API {
 
     async top_gainer_loser() {

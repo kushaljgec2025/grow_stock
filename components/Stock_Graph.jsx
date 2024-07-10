@@ -177,10 +177,8 @@ const StockGraph = ({ ticker }) => {
       </ThemedText>
       <ThemedView style={styles.tabContainer}>
         {["1D", "1W", "1M", "3M", "1Y"].map((label, id) => (
-          <View style={styles.tabTag}>
-            <ThemedText key={id} style={styles.tabTagText}>
-              {label}
-            </ThemedText>
+          <View key={id} style={styles.tabTag}>
+            <ThemedText style={styles.tabTagText}>{label}</ThemedText>
           </View>
         ))}
       </ThemedView>
