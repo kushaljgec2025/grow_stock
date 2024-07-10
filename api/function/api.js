@@ -1,5 +1,5 @@
 
-const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
+const API_KEY = "YJ7PG99K3K4EBOPR";
 export class API {
 
     async top_gainer_loser() {
