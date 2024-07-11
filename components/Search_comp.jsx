@@ -70,13 +70,14 @@ const SearchComp = ({ findid }) => {
 
   const handleSuggestionClick = (symbol) => {
     setfocus(false);
-    Keyboard.dismiss();
+
     setTickerSuggestion([]);
     setCompanyName(symbol);
-    handleSearchCompany();
   };
 
-  const handleSearchCompany = (companyName) => {
+  const handleSearchCompany = () => {
+    Keyboard.dismiss();
+    setTickerSuggestion([]);
     findid(companyName);
   };
 
@@ -94,7 +95,7 @@ const SearchComp = ({ findid }) => {
           keyboardType="search"
           returnKeyType="search"
           onChangeText={handleChange}
-          onSubmitEditing={() => handleSearchCompany(companyName)}
+          onSubmitEditing={handleSearchCompany}
           value={companyName}
           style={[styles.textInput, { color: isDark ? "white" : "black" }]}
         />
